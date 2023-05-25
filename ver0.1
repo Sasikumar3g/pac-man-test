@@ -98,6 +98,52 @@ function checkCollisionWithDots() {
   }
 }
 
+// Define Ghost constructor function
+function Ghost(name, startX, startY, color) {
+  this.name = name;
+  this.x = startX;
+  this.y = startY;
+  this.color = color;
+  this.direction = "left";
+
+  // Create the ghost element and add it to the game board
+  this.element = document.createElement("div");
+  this.element.classList.add("ghost");
+  this.element.style.backgroundColor = this.color;
+  gameBoard.appendChild(this.element);
+
+  // Position the ghost
+  this.element.style.left = `${this.x}px`;
+  this.element.style.top = `${this.y}px`;
+
+  // Method to update the ghost's position
+  this.update = function() {
+    // ... existing code ...
+  };
+
+  // Method to render the ghost
+  this.render = function() {
+    this.element.style.left = `${this.x}px`;
+    this.element.style.top = `${this.y}px`;
+  };
+}
+
+// Create multiple instances of Ghost
+var ghosts = [
+  new Ghost("ghost1", 40, 40, "red"),
+  new Ghost("ghost2", 80, 80, "blue"),
+  new Ghost("ghost3", 120, 120, "pink")
+];
+
+// Update and render each ghost in the game loop
+function gameLoop() {
+  for (var i = 0; i < ghosts.length; i++) {
+    ghosts[i].update();
+    ghosts[i].render();
+  }
+}
+
+
 // Create a ghost and add it to the game board
 var ghost = document.createElement("div");
 ghost.classList.add("ghost");

@@ -1,0 +1,300 @@
+// Get a reference to the game board
+var gameBoard = document.getElementById("game-board");
+
+// Create Pac-Man and add it to the game board
+var pacman = document.createElement("div");
+pacman.classList.add("pacman");
+gameBoard.appendChild(pacman);
+
+// Position Pac-Man
+var pacmanPos = { x: 40, y: 40 };
+pacman.style.left = `${pacmanPos.x}px`;
+pacman.style.top = `${pacmanPos.y}px`;
+
+// Move Pac-Man
+function movePacman(e) {
+  var speed = 20; // You can change this to make Pac-Man move faster or slower
+
+  switch (e.keyCode) {
+    case 37: // left arrow
+      if (canMoveTo(pacmanPos.x - speed, pacmanPos.y, pacman.offsetWidth, pacman.offsetHeight)) {
+        pacmanPos.x -= speed;
+      }
+      break;
+    case 38: // up arrow
+      if (canMoveTo(pacmanPos.x, pacmanPos.y - speed, pacman.offsetWidth, pacman.offsetHeight)) {
+        pacmanPos.y -= speed;
+      }
+      break;
+    case 39: // right arrow
+      if (canMoveTo(pacmanPos.x + speed, pacmanPos.y, pacman.offsetWidth, pacman.offsetHeight)) {
+        pacmanPos.x += speed;
+      }
+      break;
+    case 40: // down arrow
+      if (canMoveTo(pacmanPos.x, pacmanPos.y + speed, pacman.offsetWidth, pacman.offsetHeight)) {
+        pacmanPos.y += speed;
+      }
+      break;
+  }
+
+  pacman.style.left = `${pacmanPos.x}px`;
+  pacman.style.top = `${pacmanPos.y}px`;
+
+  checkCollisionWithDots();
+}
+
+
+// Listen for arrow key presses
+window.addEventListener("keydown", movePacman);
+
+// Define the size of the game play field
+var gameBoardSize = 800;
+var dotSize = 10;
+
+// Function to create a dot
+function createDot() {
+  var dot = document.createElement("div");
+  dot.classList.add("dot");
+  dot.style.height = `${dotSize}px`;
+  dot.style.width = `${dotSize}px`;
+  dot.style.position = "absolute";
+
+  // Randomly position the dot within the game board
+  dot.style.left = `${Math.random() * (gameBoardSize - dotSize)}px`;
+  dot.style.top = `${Math.random() * (gameBoardSize - dotSize)}px`;
+
+  return dot;
+}
+
+// Add dots to the game board
+for (var i = 0; i < 10; i++) {
+  // change the number here to add more or fewer dots
+  gameBoard.appendChild(createDot());
+}
+
+// Function to check if two elements are colliding
+function isColliding(el1, el2) {
+  var rect1 = el1.getBoundingClientRect();
+  var rect2 = el2.getBoundingClientRect();
+
+  return !(
+    rect2.left > rect1.right ||
+    rect2.right < rect1.left ||
+    rect2.top > rect1.bottom ||
+    rect2.bottom < rect1.top
+  );
+}
+
+// Check for collision with dots
+function checkCollisionWithDots() {
+  var dots = document.getElementsByClassName("dot");
+
+  for (var i = 0; i < dots.length; i++) {
+    if (isColliding(pacman, dots[i])) {
+      // Remove the dot if Pac-Man is colliding with it
+      dots[i].parentNode.removeChild(dots[i]);
+    }
+  }
+}
+
+// Create a ghost and add it to the game board
+var ghost = document.createElement("div");
+ghost.classList.add("ghost");
+gameBoard.appendChild(ghost);
+
+var ghost2 = document.createElement("div");
+ghost2.classList.add("ghost");
+gameBoard.appendChild(ghost2);
+
+var ghost3 = document.createElement("div");
+ghost3.classList.add("ghost");
+gameBoard.appendChild(ghost3);
+
+
+
+// Position the ghost
+var ghostPos = { x: 100, y: 100 }; // You can change this to position the ghost differently
+ghost.style.left = `${ghostPos.x}px`;
+ghost.style.top = `${ghostPos.y}px`;
+
+var ghost2Pos = { x: 80, y: 80 };
+ghost2.style.left = `${ghost2Pos.x}px`;
+ghost2.style.top = `${ghost2Pos.y}px`;
+
+var ghost3Pos = { x: 120, y: 120 };
+ghost3.style.left = `${ghost3Pos.x}px`;
+ghost3.style.top = `${ghost3Pos.y}px`;
+
+
+// Move the ghost
+function moveGhost() {
+  var speed = 1; // You can change this to make the ghost move faster or slower
+
+  var dx = pacmanPos.x - ghostPos.x;
+  var dy = pacmanPos.y - ghostPos.y;
+  var distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (canMoveTo(ghostPos.x + (dx / distance) * speed, ghostPos.y + (dy / distance) * speed, 20, 20)) {
+    ghostPos.x += (dx / distance) * speed;
+    ghostPos.y += (dy / distance) * speed;
+  }
+
+  ghost.style.left = `${ghostPos.x}px`;
+  ghost.style.top = `${ghostPos.y}px`;
+
+  // Check for collision with Pac-Man
+  if (isColliding(pacman, ghost)) {
+    // Game over if the ghost collides with Pac-Man
+    console.log("Game Over");
+  }
+
+  // Move the ghost every 20 milliseconds
+  setTimeout(moveGhost, 20);
+}
+
+// Start moving the ghost
+moveGhost();
+
+// Define the moveGhost2 function
+function moveGhost2() {
+  var ghost2Direction = Math.floor(Math.random() * 4);
+
+  switch (ghost2Direction) {
+    case 0: // left
+      if (!isCollidingWithWall(ghost2Pos.x - ghostSpeed, ghost2Pos.y)) {
+        ghost2Pos.x -= ghostSpeed;
+      }
+      break;
+    case 1: // up
+      if (!isCollidingWithWall(ghost2Pos.x, ghost2Pos.y - ghostSpeed)) {
+        ghost2Pos.y -= ghostSpeed;
+      }
+      break;
+    case 2: // right
+      if (!isCollidingWithWall(ghost2Pos.x + ghostSpeed, ghost2Pos.y)) {
+        ghost2Pos.x += ghostSpeed;
+      }
+      break;
+    case 3: // down
+      if (!isCollidingWithWall(ghost2Pos.x, ghost2Pos.y + ghostSpeed)) {
+        ghost2Pos.y += ghostSpeed;
+      }
+      break;
+  }
+
+  ghost2.style.left = `${ghost2Pos.x}px`;
+  ghost2.style.top = `${ghost2Pos.y}px`;
+}
+
+// Define the moveGhost3 function
+function moveGhost3() {
+  var ghost3Direction = Math.floor(Math.random() * 4);
+
+  switch (ghost3Direction) {
+    case 0: // left
+      if (!isCollidingWithWall(ghost3Pos.x - ghostSpeed, ghost3Pos.y)) {
+        ghost3Pos.x -= ghostSpeed;
+      }
+      break;
+    case 1: // up
+      if (!isCollidingWithWall(ghost3Pos.x, ghost3Pos.y - ghostSpeed)) {
+        ghost3Pos.y -= ghostSpeed;
+      }
+      break;
+    case 2: // right
+      if (!isCollidingWithWall(ghost3Pos.x + ghostSpeed, ghost3Pos.y)) {
+        ghost3Pos.x += ghostSpeed;
+      }
+      break;
+    case 3: // down
+      if (!isCollidingWithWall(ghost3Pos.x, ghost3Pos.y + ghostSpeed)) {
+        ghost3Pos.y += ghostSpeed;
+      }
+      break;
+  }
+
+  ghost3.style.left = `${ghost3Pos.x}px`;
+  ghost3.style.top = `${ghost3Pos.y}px`;
+}
+
+
+setInterval(moveGhost2, 300);
+setInterval(moveGhost3, 300);
+
+
+// Define the game map
+var map = [
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+];
+
+// Draw the game map
+var tileSize = 20;
+for (var y = 0; y < map.length; y++) {
+  for (var x = 0; x < map[y].length; x++) {
+    if (map[y][x] === 1) {
+      var wall = document.createElement("div");
+      wall.classList.add("wall");
+      wall.style.left = `${x * tileSize}px`;
+      wall.style.top = `${y * tileSize}px`;
+      gameBoard.appendChild(wall);
+    }
+  }
+}
+
+// Function to check if a character can move to a position
+function canMoveTo(x, y, width, height) {
+  var leftTile = Math.floor(x / tileSize);
+  var rightTile = Math.floor((x + width - 1) / tileSize);
+  var topTile = Math.floor(y / tileSize);
+  var bottomTile = Math.floor((y + height - 1) / tileSize);
+
+  for (var y = topTile; y <= bottomTile; y++) {
+    for (var x = leftTile; x <= rightTile; x++) {
+      if (map[y][x] === 1) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
